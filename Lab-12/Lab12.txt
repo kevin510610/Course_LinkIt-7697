@@ -1,0 +1,159 @@
+Point 1:
+
+#include "DHT.h"
+#define DHTPIN 10
+#define DHTTYPE DHT11
+DHT dht(DHTPIN, DHTTYPE);
+void setup() {
+  Serial.begin(9600);
+  Serial.println(F("DHTxx test!"));
+  dht.begin();
+}
+void loop() {
+  delay(2000);
+  float h = dht.readHumidity();
+  float t = dht.readTemperature();
+  float f = dht.readTemperature(true);
+  if (isnan(h) || isnan(t) || isnan(f)) {
+    Serial.println(F("Failed to read from DHT sensor!"));
+    return;
+  }
+  float hif = dht.computeHeatIndex(f, h);
+  float hic = dht.computeHeatIndex(t, h, false);
+  Serial.print(F("Humidity: "));
+  Serial.print(h);
+  Serial.print(F("%  Temperature: "));
+  Serial.print(t);
+  Serial.print(F("¢XC "));
+  Serial.print(f);
+  Serial.print(F("¢XF  Heat index: "));
+  Serial.print(hic);
+  Serial.print(F("¢XC "));
+  Serial.print(hif);
+  Serial.println(F("¢XF"));
+}
+ 
+
+Point 2:
+
+#include "Arduino.h"
+#include "LTimer.h"
+#include "DHT.h"
+#define DHTPIN 10 
+#define DHTTYPE DHT11
+DHT dht(DHTPIN, DHTTYPE);
+LTimer timer0(LTIMER_0);
+float h,t,f,hic,hif;
+int flag=0;
+void _callback0(void *usr_data)
+{
+  flag=1;
+}
+void setup() {
+  Serial.begin(9600);
+  timer0.begin();
+  Serial.println(F("DHTxx test!"));
+  dht.begin();
+  timer0.start(1000, LTIMER_REPEAT_MODE, _callback0, NULL);
+}
+void loop() {
+  if(flag==1){
+    h = dht.readHumidity();
+    t = dht.readTemperature();
+    f = dht.readTemperature(true);
+    if (isnan(h) || isnan(t) || isnan(f)) {
+      Serial.println(F("Failed to read from DHT sensor!"));
+      return;
+    }
+    hif = dht.computeHeatIndex(f, h);
+    hic = dht.computeHeatIndex(t, h, false);
+    Serial.print(F("Humidity: "));
+    Serial.print(h);
+    Serial.print(F("%  Temperature: "));
+    Serial.print(t);
+    Serial.print(F("¢XC "));
+    Serial.print(f);
+    Serial.print(F("¢XF  Heat index: "));
+    Serial.print(hic);
+    Serial.print(F("¢XC "));
+    Serial.print(hif);
+    Serial.println(F("¢XF"));
+  }
+}
+ 
+
+Point 3:
+
+#include "Arduino.h"
+#include "LTimer.h"
+#include "DHT.h"
+#include <LWiFi.h>
+#include <WiFiClient.h>
+#include "MCS.h"
+#define DHTPIN 10
+#define DHTTYPE DHT11
+#define _SSID "Pixel"
+#define _KEY  "aa535646"
+DHT dht(DHTPIN, DHTTYPE);
+MCSDevice mcs("DCXTU1vT", "MJd5eB2TGQnEIfDa");
+LTimer timer0(LTIMER_0);
+MCSDisplayFloat DHT123("111");
+MCSDisplayFloat TTT("TTT");
+float h,t,f,hic,hif;
+int flag=0;
+void _callback0(void *usr_data)
+{
+  flag=1;
+}
+void setup() {
+  Serial.begin(9600);
+  while(WL_CONNECTED != WiFi.status())
+  {
+    Serial.print("WiFi.begin(");
+    Serial.print(_SSID);
+    Serial.print(",");
+    Serial.print(_KEY);
+    Serial.println(")...");
+    WiFi.begin(_SSID, _KEY);
+  }
+  Serial.println("WiFi connected !!");
+  mcs.addChannel(DHT123);
+  mcs.addChannel(TTT);
+  while(!mcs.connected())
+  {
+    Serial.println("MCS.connect()...");
+    mcs.connect();
+  }
+  Serial.println("MCS connected !!");
+  timer0.begin();
+  Serial.println(F("DHTxx test!"));
+  dht.begin();
+  timer0.start(100, LTIMER_REPEAT_MODE, _callback0, NULL);
+}
+void loop() {
+  Serial.print("process(");
+  Serial.print(millis());
+  Serial.println(")");
+  mcs.process(100);
+  h = dht.readHumidity();
+  t = dht.readTemperature();
+  f = dht.readTemperature(true);
+  if (isnan(h) || isnan(t) || isnan(f)) {
+    Serial.println(F("Failed to read from DHT sensor!"));
+    return;
+  }
+  hif = dht.computeHeatIndex(f, h);
+  hic = dht.computeHeatIndex(t, h, false);
+  while(!mcs.connected())
+  {
+    Serial.println("re-connect to MCS...");
+    mcs.connect();
+    if(mcs.connected())
+      Serial.println("MCS connected !!");
+  }
+  if(flag==1){
+    DHT123.set(t);
+    TTT.set(h);
+    flag=0;
+  }
+}

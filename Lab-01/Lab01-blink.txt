@@ -1,0 +1,44 @@
+Point 1¡G
+	void setup(){
+		pinMode(9, OUTPUT);
+	}
+	void loop(){
+		digitalWrite(9 ,HIGH);
+		delay(1000);
+		digitalWrite(9 ,LOW);
+		delay(1000);
+	} 
+
+Point 2¡G
+	void setup(){
+ 		 pinMode(9, OUTPUT);
+	}
+	int i=0,o=0;
+	void loop(){
+ 		digitalWrite(9 ,HIGH);
+ 		if(o==1){
+  			delay(300);
+		}
+		else {
+			delay(100);
+		}
+  		digitalWrite(9 ,LOW);
+  		if(o==2){
+		delay(300);
+  		}
+  	  	else {
+  			delay(100);
+     		}
+ 	 	if(i<3) {
+ 			i++;
+    		}
+ 		else {
+  			i=0;
+ 			if(o==2){
+ 				o=0;
+ 			}
+			else {
+    				o++;
+   			}
+  		}
+	}

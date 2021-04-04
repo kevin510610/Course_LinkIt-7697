@@ -1,0 +1,55 @@
+Point 1¡G
+
+#include <Keypad.h>
+
+const byte ROWS = 4;
+const byte COLS = 4;
+char keys[ROWS][COLS] = {
+  {'7','8','9','C'},{'4','5','6','D'},
+  {'1','2','3','E'},{'0','A','B','F'}
+};
+byte rowPins[ROWS] = {5,4,3,2};
+byte colPins[COLS] = {9,8,7,6};
+Keypad keypad = Keypad(makeKeymap(keys),rowPins,colPins,ROWS,COLS);
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+  char key = keypad.getKey();
+  if(key!=0){
+    Serial.println(key);
+  }
+}
+
+Point 2¡G
+
+#include <Keypad.h>
+#include <SevSeg.h>
+
+const byte ROWS = 4;
+const byte COLS = 4;
+SevSeg sevseg;
+char keys[ROWS][COLS] = {
+  {'7','8','9','C'},{'4','5','6','D'},
+  {'1','2','3','E'},{'0','A','B','F'}
+};
+byte rowPins[ROWS] = {5,4,3,2};
+byte colPins[COLS] = {9,8,7,6};
+Keypad keypad = Keypad(makeKeymap(keys),rowPins,colPins,ROWS,COLS);
+void setup() {
+  Serial.begin(9600);
+  byte numDigits = 1;
+  byte digitPins[] = {17};
+  byte segmentPins[] = {10, 11, 12, 13, 14, 15, 16};
+  sevseg.begin(COMMON_CATHODE, numDigits, digitPins,segmentPins);
+}
+
+void loop() {
+  char key = keypad.getKey();
+  if(key!=NO_KEY){
+    Serial.println(key);
+    sevseg.setNumber(key-'0',0);
+  }
+  sevseg.refreshDisplay();
+}

@@ -1,0 +1,101 @@
+Point 1:
+
+#include <Ultrasonic.h>
+#include <LiquidCrystal.h>
+#define TRIGGER_PIN 12
+#define ECHO_PIN 13
+LiquidCrystal lcd(11, 10, 5, 4, 3, 9);
+Ultrasonic ultrasonic(TRIGGER_PIN, ECHO_PIN);
+void setup() {
+lcd.begin(16,2);
+}
+void loop(){
+float cmMsec, inMsec;
+long microsec = ultrasonic.timing();
+cmMsec = ultrasonic.convert(microsec, Ultrasonic::CM);
+inMsec = ultrasonic.convert(microsec, Ultrasonic::IN);
+lcd.print("MS:");
+lcd.print(microsec);
+lcd.setCursor(0, 1);
+lcd.print("CM:");
+lcd.print(cmMsec);
+lcd.print(",IN:");
+lcd.println(inMsec);
+delay(1000);
+lcd.clear();
+}
+ 
+
+Point 2:
+
+#include <Ultrasonic.h>
+#include <LiquidCrystal.h>
+#define TRIGGER_PIN 12
+#define ECHO_PIN 13
+LiquidCrystal lcd(11, 10, 5, 4, 3, 9);
+Ultrasonic ultrasonic(TRIGGER_PIN, ECHO_PIN);
+void setup() {
+lcd.begin(16,2);
+attachInterrupt(2,int0, FALLING);
+}
+float cmMsec, inMsec;
+long microsec;
+void loop(){
+  lcd.setCursor(0, 0);
+  lcd.print("MS:");
+  lcd.print(microsec);
+  lcd.setCursor(0, 1);
+  lcd.print("CM:");
+  lcd.print(cmMsec);
+  lcd.print(",IN:");
+  lcd.println(inMsec);
+  delay(100);
+}
+void int0(){
+  microsec = ultrasonic.timing();
+  cmMsec = ultrasonic.convert(microsec, Ultrasonic::CM);
+  inMsec = ultrasonic.convert(microsec, Ultrasonic::IN);
+  lcd.clear();
+}
+ 
+
+Point 3:
+
+#include <Ultrasonic.h>
+#include <LiquidCrystal.h>
+#define TRIGGER_PIN 12
+#define ECHO_PIN 13
+LiquidCrystal lcd(11, 10, 5, 4, 3, 9);
+Ultrasonic ultrasonic(TRIGGER_PIN, ECHO_PIN);
+void setup() {
+lcd.begin(16,2);
+pinMode(6,INPUT);
+attachInterrupt(2,int0, FALLING);
+Serial.begin(9600);
+}
+float cmMsec, inMsec;
+long microsec;
+void loop(){
+  if(digitalRead(6)==LOW){
+   noInterrupts();
+  }
+  else{
+    interrupts();
+  }
+  Serial.println(digitalRead(6));
+  lcd.setCursor(0, 0);
+  lcd.print("MS:");
+  lcd.print(microsec);
+  lcd.setCursor(0, 1);
+  lcd.print("CM:");
+  lcd.print(cmMsec);
+  lcd.print(",IN:");
+  lcd.println(inMsec);
+  delay(100);
+}
+void int0(){
+  microsec = ultrasonic.timing();
+  cmMsec = ultrasonic.convert(microsec, Ultrasonic::CM);
+  inMsec = ultrasonic.convert(microsec, Ultrasonic::IN);
+  lcd.clear();
+}
